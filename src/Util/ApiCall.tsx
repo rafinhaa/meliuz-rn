@@ -1,13 +1,27 @@
 import React, {useState, useEffect} from 'react';
 import request from '../Services/api';
 import {View, Text, Image, StyleSheet, Pressable, Dimensions} from 'react-native';
+import LottieView from 'lottie-react-native';
 
+interface IBreedsData {
+    id: number;
+    name: string;
+    bred_for: string;
+    breed_group: string;    
+}
+interface IFindYouDogData {
+    id: string;
+    url: string;
+    breeds?: IBreedsData[];
+}
 
-function GetDogs(){
-    const [dogs, setDogs] = useState([]);
+const GetDogs: React.FC = () => {
+    const [dogs, setDogs] = useState<IFindYouDogData[]>([]);
     const [reload, serReload] = useState(false); 
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
+        setLoading(true);
         request.get('').then(
             (response) => { 
                 setDogs(response.data); // Pega os dados da API e coloca na variavel pokemon
@@ -17,8 +31,24 @@ function GetDogs(){
             (error) => {
                 alert(error);
             }
+        ).finally(
+            () => {
+                setTimeout(() => {
+                    setLoading(false);
+                }, 1500);
+            }
         );
     }, [reload]);
+    
+    if (loading) {
+        return (
+            <View
+                style={styles.default}
+            >
+                <LottieView source={require('../Animation/dog.json')} autoPlay loop style={styles.animation} />
+            </View>
+        );
+    }
 
     return (
         <View
@@ -27,8 +57,14 @@ function GetDogs(){
             {
                 dogs.map((dog, index) => (
                     <View key={index}>
-                        <Image style={styles.dogPicture} source={dog} />
-                        <Text>{dog.name}</Text>
+                        <Image style={styles.dogPicture} source={{uri: dog.url}} />
+                        <Text>
+                            {
+                                dog.breeds?.map((breed, index) => (
+                                        breed.name
+                                ))
+                            }
+                        </Text>
                     </View>
                 ))
             }
@@ -61,6 +97,10 @@ const styles = StyleSheet.create({
         color: '#fff',
         textAlign: 'center',
     },
+    animation: {
+        width: Dimensions.get('window').width,
+        height: 300,
+    }
 });
 
 export default GetDogs;

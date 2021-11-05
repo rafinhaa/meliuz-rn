@@ -4,7 +4,7 @@ import React from 'react';
 import styles from './styles';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
 
-const Section = ({children, title}) => {
+const Section: React.FC = ({children, title}: any) => {
     const isDarkMode = useColorScheme() === 'dark';
     return (
         <View style={styles.sectionContainer}>
